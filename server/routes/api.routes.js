@@ -4,7 +4,7 @@ import contactCtrl from '../controllers/contact.controller.js'
 import projectCtrl from '../controllers/project.controller.js'
 import qualificationCtrl from '../controllers/qualification.controller.js'
 import authRoutes from './authRoutes.js'
-import requireSignin, { requireAdmin } from '../Middlewares/auth.js'
+import requireSignin, { requireAdmin } from '../middlewares/auth.js'
 
 const router = express.Router()
 const adminOnly = [requireSignin, requireAdmin]

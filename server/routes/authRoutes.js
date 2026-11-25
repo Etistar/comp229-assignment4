@@ -1,6 +1,6 @@
 import express from 'express'
 import authCtrl from '../controllers/auth.controller.js'
-import requireSignin from '../Middlewares/auth.js'
+import requireSignin from '../middlewares/auth.js'
 
 const router = express.Router()
 
