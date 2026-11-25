@@ -40,7 +40,7 @@ const Home = () => {
           Welcome to the MERN Skeleton home page.
         </Typography>
         <Typography variant="body1" component="p" sx={{ mt: 2 }} data-testid="release-note">
-          Assignment 4 — Etienne ZONON
+          Assignment 4 — Etienne ZONON Deployment done on Render
         </Typography>
       </CardContent>
     </Card>
