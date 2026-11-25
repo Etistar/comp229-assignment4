@@ -1,17 +1,15 @@
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
+import config from '../../config/config.js'
 
-const generateToken = (user) => {
-    return jwt.sign(
-        {
-            id: user._id,
-            email: user.email,
-            twoFactorEnabled: true           
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: '30d',
-        }
-    )
+export const generateToken = (user) => {
+  return jwt.sign(
+    {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role || 'user'
+    },
+    config.jwtSecret,
+    { expiresIn: '1d' }
+  )
 }
-
-export default generateToken;

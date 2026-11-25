@@ -1,19 +1,11 @@
-describe('login', () => {
-  it('shows the home release line and the login error from the API', () => {
+describe('portfolio contact', () => {
+  it('shows the portfolio home page and blocks an empty contact form', () => {
     cy.visit('/')
-    cy.contains('Assignment 4 — Etienne ZONON').should('be.visible')
-
-    cy.intercept('POST', '/api/users/login', {
-      statusCode: 401,
-      body: { message: 'Invalid email or password' },
-    }).as('login')
-
-    cy.visit('/login')
-    cy.get('input[name="email"]').type('student@example.com')
-    cy.get('input[name="password"]').type('wrong-password')
-    cy.contains('button', 'Continue').click()
-    cy.wait('@login')
-    cy.contains('Invalid email or password').should('be.visible')
-    cy.contains('Verify authenticator code').should('not.exist')
+    cy.contains('Welcome to My Portfolio').should('be.visible')
+    cy.contains('a', 'Contact').click()
+    cy.contains('h1', 'Contact Me').should('be.visible')
+    cy.contains('button', 'Send Message').click()
+    cy.contains('First name is required').should('be.visible')
+    cy.contains('Message sent').should('not.exist')
   })
 })

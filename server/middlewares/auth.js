@@ -1,22 +1,42 @@
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
+import config from '../../config/config.js'
+import User from '../models/user.model.js'
 
-const authMiddleware = (req, res, next) => {
-    const token = req.headers.authorization? req.headers.authorization.split(' ')[1] : null; // Token: "Bearer <token>"
+const requireSignin = (req, res, next) => {
+  const authHeader = req.headers.authorization || ''
+  let token = null
 
-    if(!token) {
-        return res.status(401).json({ message: 'No token provided' });
-    }
+  if (authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1]
+  } else if (req.cookies && req.cookies.t) {
+    token = req.cookies.t
+  }
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (!decoded.twoFactorEnabled) {
-            return res.status(401).json({ message: 'Two-factor authentication is not enabled, Please log in again' });
-        }
-        req.user = decoded;
-        next();
-    } catch (error) {
-        return res.status(401).json({ message: 'Invalid token' });
-    }
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided, authorization denied' })
+  }
+
+  try {
+    req.auth = jwt.verify(token, config.jwtSecret)
+    next()
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token' })
+  }
 }
 
-export default authMiddleware;
+// Confirms the role from the database, not only from the token claim.
+const requireAdmin = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.auth._id).select('name email role')
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Administrator access required' })
+    }
+    req.profile = user
+    next()
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token' })
+  }
+}
+
+export { requireAdmin }
+export default requireSignin

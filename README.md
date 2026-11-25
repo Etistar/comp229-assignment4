@@ -1,6 +1,6 @@
 # Assignment 4 — COMP229
 
-Application du professeur (Vite + Express 5 + MongoDB), préparée pour un seul service Render. Le dossier `Assignment4` d’origine (Create React App, port 5000) n’est pas celui à déployer.
+Le portfolio d’Assignment 3, placé dans la structure du dépôt du professeur (Vite + Express). Un seul service Render sert le site et l’API.
 
 ## Lancer en local
 
@@ -14,23 +14,22 @@ npm run dev
 
 - Site : http://localhost:5173
 - API : http://localhost:3001
-- Le fichier `server/.env` contient `MONGO_URI` et `JWT_SECRET`. Il ne doit pas être commité.
+- `server/.env` contient `MONGO_URI`, `JWT_SECRET`, `ADMIN_NAME`, `ADMIN_EMAIL` et `ADMIN_PASSWORD`. Il ne doit pas être commité.
+
+La page d’accueil affiche **Welcome to My Portfolio**. Les pages sont Home, About, Projects, Education, Services, Contact, Sign in et Sign up.
 
 ## Tests
 
 ```powershell
 npm test
-npm run build
 ```
 
-Le test client vérifie qu’un mot de passe refusé affiche le message de l’API et n’ouvre pas l’étape authenticator. Le test serveur vérifie que le jeton n’est émis qu’avec `twoFactorEnabled: true`.
+Le test client vérifie que le formulaire Contact vide affiche `First name is required` et n’appelle pas l’API, puis qu’un message valide est envoyé à `POST /api/contacts`. Le test serveur vérifie que le jeton contient le rôle enregistré en base.
 
-Vidéo Cypress, sur ta machine :
+Vidéo Cypress, avec `npm run dev` déjà lancé :
 
 ```powershell
-npm install --prefix client
 npx --prefix client cypress install
-npm run dev
 npm run e2e --prefix client
 ```
 
@@ -38,36 +37,17 @@ La vidéo est dans `client/cypress/videos`.
 
 ## Performance
 
-Login, Register, la liste des projets et le détail d’un projet sont chargés seulement quand on ouvre leur page (`React.lazy`). Build de production mesuré :
-
-- page d’accueil, `index-*.js` : 238,40 kB, gzip 75,08 kB
-- champs de formulaire, chargés seulement sur Login ou Register, `TextField-*.js` : 79,57 kB, gzip 24,50 kB
-- pages séparées : login 1,24 kB, register 0,95 kB, projects 3,01 kB, détail 1,24 kB, authenticator 1,27 kB (gzip)
-
-Avant cette modification, le code du professeur mettait ces modules dans le premier fichier. Après, ils n’apparaissent dans l’onglet Network qu’au premier clic sur Login ou Projects.
-
-## Branche à montrer
-
-La phrase visible est `Assignment 4 — Etienne ZONON` dans `client/src/core/Home.jsx`. Change un mot sur une branche, ouvre une pull request, et garde la capture avant / après. Le workflow `.github/workflows/ci.yml` lance les tests et le build, puis appelle le hook Render si le secret `RENDER_DEPLOY_HOOK_URL` existe.
+About, Projects, Education, Services, Contact, Sign in, Sign up et Messages sont chargés avec `React.lazy`. Le build de production laisse ces pages dans des fichiers séparés. Le fichier principal fait 366,51 kB, gzip 112,03 kB. Contact fait 4,53 kB, gzip 1,40 kB, et n’est téléchargé qu’à l’ouverture de la page.
 
 ## Déploiement Render
 
-Un seul Web Service, à la racine de **ton** dépôt GitHub (pas le dépôt CENT-COL).
-
 - Build command : `npm run render-build`
 - Start command : `npm start`
-- Node 20
-- Variables : `MONGO_URI`, `JWT_SECRET`
-- Ne pas définir `PORT` : Render le fournit, et le serveur l’utilise.
+- Variables : `MONGO_URI`, `JWT_SECRET`, `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+- Ne pas définir `PORT`.
 
-`vite` est une devDependency. `render-build` installe le client avec `--include=dev`, sinon le build Render échoue quand `NODE_ENV=production`.
-
-Vérification après le déploiement : `https://TON-SERVICE.onrender.com/api/health` doit répondre `{ "ok": true }`, et la page d’accueil doit afficher la phrase Assignment 4.
-
-## Connexion
-
-Le mot de passe ne donne pas le jeton. Après Register ou Login, l’application affiche un QR code. Il faut une application authenticator (Google Authenticator, Microsoft Authenticator, etc.), scanner le QR, puis entrer le code à 6 chiffres. Sans cette étape, Projects reste inaccessible : c’est le comportement du code du professeur.
+`https://TON-SERVICE.onrender.com/api/health` répond `{ "ok": true, "message": "Welcome to My Portfolio application." }`.
 
 ## Aide IA à déclarer
 
-Les tests, le chargement différé des pages, le port Render et le workflow ont été préparés avec Cursor. Le code des routes, de l’authentification à deux facteurs et des projets vient du dépôt du cours : https://github.com/CENT-COL/comp229-f26-mern
+Cursor a aidé à reporter le portfolio d’Assignment 3 dans la structure Vite/Express du dépôt du cours, et à écrire les tests du formulaire Contact. L’interface et les routes du portfolio viennent d’Assignment 3. La structure client/serveur vient de https://github.com/CENT-COL/comp229-f26-mern

@@ -1,50 +1,54 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import express from 'express'; // ES6 and newer javascript
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-import authMiddleware from './middlewares/auth.js';
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import compress from 'compression';
+import cors from 'cors';
+import helmet from 'helmet';
+import apiRoutes from './routes/api.routes.js';
+import connectDb from './db.js';
 
-import projectsRoutes from './routes/projects-routes.js';
-import userRoutes from './routes/user-routes.js';
+const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(compress());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false
+}));
+app.use(cors({
+    origin: process.env.CLIENT_URL || true,
+    credentials: true
+}));
 
-// Establish DB Connection
-mongoose.connect(process.env.MONGO_URI);
-const connection = mongoose.connection; 
-connection.on('error', console.error.bind(console, 'connection error:'));
-connection.once('open', function() {
-    console.log("MongoDB database connection established successfully");
+app.use('/', apiRoutes);
+
+app.use((err, req, res, next) => {
+    if (err.type === 'entity.parse.failed') {
+        return res.status(400).json({ error: 'Invalid JSON body' });
+    }
+    return next(err);
 });
 
-const app = express(); 
-
-app.use(express.json()); // for parsing application/json
-
-app.get('/api/health', (req, res) => {
-    res.json({ ok: true });
-});
-
-app.use('/api/projects', authMiddleware, projectsRoutes);
-app.use('/api/users', userRoutes);
-
-app.use('/api', (req, res) => {
-    res.status(404).json({ message: 'API route not found' });
-})
-
-// Serve the static react build files
 app.use(express.static(path.join(__dirname, '../client/dist')));
+app.use(express.static(path.join(__dirname, '../client/public')));
 
 app.get('/{*path}', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
-
 const port = process.env.PORT || 3001;
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Server is running on port ${port}`);
-});
+connectDb()
+    .catch(() => {})
+    .finally(() => {
+        app.listen(port, '0.0.0.0', () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    });
