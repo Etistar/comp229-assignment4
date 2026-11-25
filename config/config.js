@@ -1,8 +1,11 @@
-import dotenv from 'dotenv'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const require = createRequire(new URL('../server/package.json', import.meta.url))
+const dotenv = require('dotenv')
+
 dotenv.config({ path: path.join(__dirname, '../server/.env') })
 
 const config = {
