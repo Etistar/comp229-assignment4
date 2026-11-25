@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Etienne ZONON — Portfolio</title>
+    <script>
+      if (location.pathname === '/about') {
+        const preload = document.createElement('link')
+        preload.rel = 'preload'
+        preload.as = 'image'
+        preload.href = '/EtienneZONON.webp'
+        document.head.appendChild(preload)
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

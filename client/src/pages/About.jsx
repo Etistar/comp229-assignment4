@@ -24,11 +24,11 @@ const About = () => {
           
           <div className="about-image">
             <img
-              src="/EtienneZONON.png"
+              src="/EtienneZONON.webp"
               alt="Portrait de Etienne ZONON"
               width="200"
               height="200"
-              loading="lazy"
+              fetchPriority="high"
               decoding="async"
               style={{
                 width: '200px',
